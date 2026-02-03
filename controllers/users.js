@@ -40,7 +40,11 @@ const createUser = (req, res) => {
 const getUser = (req, res) => {
   const { userId } = req.params;
   User.findById(userId)
-    .orFail()
+    .orFail(() => {
+      const error = new Error("User not found");
+      error.statusCode = NOT_FOUND;
+      throw error;
+    })
     .then((user) => res.status(200).send(user))
     .catch((err) => {
       console.error(err);
@@ -49,6 +53,10 @@ const getUser = (req, res) => {
         return res.status(NOT_FOUND).send({ message: "User not found" });
       } else if (err.name === "CastError") {
         return res.status(BAD_REQUEST).send({ message: "Invalid user ID" });
+      } else {
+        return res
+          .status(INTERNAL_SERVER_ERROR)
+          .send({ message: "Error has occured in the server" });
       }
       return res
         .status(INTERNAL_SERVER_ERROR)

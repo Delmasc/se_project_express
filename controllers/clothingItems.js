@@ -43,10 +43,11 @@ const deleteItem = (req, res) => {
 const createItem = (req, res) => {
   console.log(req);
   console.log(req.body);
+  const owner = req.user._id;
   const { name, weather, imageUrl } = req.body;
 
   clothingItems
-    .create({ name, weather, imageUrl })
+    .create({ name, weather, imageUrl, owner })
     .then((item) => {
       res.status(201).send({ data: item });
     })
@@ -65,7 +66,7 @@ const likeItem = (req, res) =>
   clothingItems
     .findByIdAndUpdate(
       req.params.itemId,
-      { $addToSet: { likes: req.user._id } }, // add _id to the array if it's not there yet
+      { $addToSet: { likes: req.user._id } },
       { new: true }
     )
     .orFail()
