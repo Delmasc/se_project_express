@@ -106,19 +106,19 @@ const dislikeItem = (req, res) =>
     .then((item) => {
       res.send({ data: item });
     })
-.catch((err) => {
-  console.error(err);
+    .catch((err) => {
+      console.error(err);
 
-  if (err.name === "CastError") {
-    res.status(BAD_REQUEST).send({ message: "Invalid user ID" });
-  } else if (err.statusCode === NOT_FOUND) {
-    res.status(NOT_FOUND).send({ message: err.message });
-  } else {
-    res
-      .status(INTERNAL_SERVER_ERROR)
-      .send({ message: "An error has occurred on the server" });
-  }
-});
+      if (err.name === "CastError") {
+        res.status(BAD_REQUEST).send({ message: "Invalid user ID" });
+      } else if (err.statusCode === NOT_FOUND) {
+        res.status(NOT_FOUND).send({ message: err.message });
+      } else {
+        res
+          .status(INTERNAL_SERVER_ERROR)
+          .send({ message: "An error has occurred on the server" });
+      }
+    });
 
 module.exports = {
   createItem,
