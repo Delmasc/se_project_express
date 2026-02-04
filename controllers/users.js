@@ -49,18 +49,15 @@ const getUser = (req, res) => {
     .catch((err) => {
       console.error(err);
       console.log(err.name);
-      if (err.name === "DocumentNotFoundError") {
-        return res.status(NOT_FOUND).send({ message: "User not found" });
-      } else if (err.name === "CastError") {
-        return res.status(BAD_REQUEST).send({ message: "Invalid user ID" });
+      if (err.name === "CastError") {
+        res.status(BAD_REQUEST).send({ message: "Invalid user ID" });
+      } else if (err.statusCode === NOT_FOUND) {
+        res.status(NOT_FOUND).send({ message: err.message });
       } else {
-        return res
+        res
           .status(INTERNAL_SERVER_ERROR)
-          .send({ message: "Error has occured in the server" });
+          .send({ message: "An error has occurred on the server" });
       }
-      return res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "Error retrieving user" });
     });
 };
 
