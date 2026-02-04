@@ -9,7 +9,6 @@ const {
 // Get /users
 
 const getUsers = (req, res) => {
-  console.log("Retrieving all users");
   return User.find({})
     .then((users) => res.send(users))
     .catch((err) => {
@@ -22,12 +21,10 @@ const getUsers = (req, res) => {
 
 const createUser = (req, res) => {
   const { name, avatar } = req.body;
-  console.log("Creating user with data:", req.body);
   return User.create({ name, avatar })
     .then((user) => res.status(201).send(user))
     .catch((err) => {
       console.error(err);
-      console.log(err.name);
       if (err.name === "ValidationError") {
         return res.status(BAD_REQUEST).send({ message: "Invalid user data" });
       }
@@ -48,7 +45,6 @@ const getUser = (req, res) => {
     .then((user) => res.status(200).send(user))
     .catch((err) => {
       console.error(err);
-      console.log(err.name);
       if (err.name === "CastError") {
         res.status(BAD_REQUEST).send({ message: "Invalid user ID" });
       } else if (err.statusCode === NOT_FOUND) {

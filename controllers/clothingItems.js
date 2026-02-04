@@ -46,7 +46,6 @@ const deleteItem = (req, res) => {
 };
 
 const createItem = (req, res) => {
-  console.log(req.body);
   const owner = req.user._id;
   const { name, weather, imageUrl } = req.body;
 
@@ -78,18 +77,21 @@ const likeItem = (req, res) =>
       error.statusCode = NOT_FOUND;
       throw error;
     })
+    .then((item) => {
+      res.send(item);
+    })
     .catch((err) => {
       console.error(err);
 
-      if (err.name === "DocumentNotFoundError") {
-        return res.status(NOT_FOUND).send({ message: "Item not found" });
-      }
       if (err.name === "CastError") {
-        return res.status(BAD_REQUEST).send({ message: "Invalid item ID" });
+        res.status(BAD_REQUEST).send({ message: "Invalid item ID" });
+      } else if (err.statusCode === NOT_FOUND) {
+        res.status(NOT_FOUND).send({ message: err.message });
+      } else {
+        res
+          .status(INTERNAL_SERVER_ERROR)
+          .send({ message: "An error has occurred on the server" });
       }
-      return res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "Error liking clothing item" });
     });
 
 const dislikeItem = (req, res) =>
