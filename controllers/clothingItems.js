@@ -6,7 +6,7 @@ const {
 } = require("../utils/errors");
 
 const getClothingItems = (req, res) => {
-  return clothingItems
+  clothingItems
     .find({})
     .then((items) => res.send(items))
     .catch((err) => {
@@ -27,7 +27,7 @@ const deleteItem = (req, res) => {
       error.statusCode = NOT_FOUND;
       throw error;
     })
-    .then((item) => {
+    .then(() => {
       res.status(200).send({ message: "Item deleted successfully" });
     })
     .catch((err) => {
@@ -83,7 +83,8 @@ const likeItem = (req, res) =>
 
       if (err.name === "DocumentNotFoundError") {
         return res.status(NOT_FOUND).send({ message: "Item not found" });
-      } else if (err.name === "CastError") {
+      }
+      if (err.name === "CastError") {
         return res.status(BAD_REQUEST).send({ message: "Invalid item ID" });
       }
       return res
