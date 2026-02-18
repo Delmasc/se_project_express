@@ -1,6 +1,7 @@
 const User = require("../models/user");
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require("../utils/config");
+const bcrypt = require("bcryptjs");
 
 const {
   INTERNAL_SERVER_ERROR,
@@ -38,9 +39,9 @@ const login = (req, res) => {
 };
 
 const createUser = (req, res) => {
-  const { name, avatar, password } = req.body;
+  const { name, avatar, password, email } = req.body;
   bcrypt.hash(password, 13).then((hashedPassword) => {
-    return User.create({ name, avatar, password: hashedPassword })
+    return User.create({ name, avatar, password: hashedPassword, email })
       .then((user) => {
         const userObj = user.toObject();
         delete userObj.password;

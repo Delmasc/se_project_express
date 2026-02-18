@@ -57,7 +57,7 @@ const deleteItem = (req, res) => {
 const createItem = (req, res) => {
   const owner = req.user._id;
   const { name, weather, imageUrl } = req.body;
-
+  console.log(owner);
   clothingItems
     .create({ name, weather, imageUrl, owner })
     .then((item) => {
@@ -74,7 +74,8 @@ const createItem = (req, res) => {
     });
 };
 
-const likeItem = (req, res) =>
+const likeItem = (req, res) => {
+  console.log(">>>>>>", req);
   clothingItems
     .findByIdAndUpdate(
       req.params.itemId,
@@ -102,6 +103,7 @@ const likeItem = (req, res) =>
           .send({ message: "An error has occurred on the server" });
       }
     });
+};
 
 const dislikeItem = (req, res) =>
   clothingItems
