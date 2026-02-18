@@ -1,9 +1,12 @@
 const User = require("../models/user");
+const jwt = require("jsonwebtoken");
+const { JWT_SECRET } = require("../utils/config");
 
 const {
   INTERNAL_SERVER_ERROR,
   BAD_REQUEST,
   NOT_FOUND,
+  CONFLICT,
 } = require("../utils/errors");
 
 // Get /users
@@ -19,10 +22,55 @@ const getUsers = (req, res) => {
     });
 };
 
+const login = (req, res) => {
+  const { email, password } = req.body;
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
+        expiresIn: "7d",
+      });
+      res.send({ token });
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(BAD_REQUEST).send({ message: "Invalid email or password" });
+    });
+};
+
 const createUser = (req, res) => {
+  const { name, avatar, password } = req.body;
+  bcrypt.hash(password, 13).then((hashedPassword) => {
+    return User.create({ name, avatar, password: hashedPassword })
+      .then((user) => {
+        const userObj = user.toObject();
+        delete userObj.password;
+        return res.status(201).send(userObj);
+      })
+      .catch((err) => {
+        console.error(err);
+        if (err.name === "ValidationError") {
+          return res.status(BAD_REQUEST).send({ message: "Invalid user data" });
+        }
+        if (err.code === 11000) {
+          return res.status(CONFLICT).send({ message: "Email already exists" });
+        }
+        return res
+          .status(INTERNAL_SERVER_ERROR)
+          .send({ message: "Error creating user" });
+      });
+  });
+};
+
+const updateCurrentUser = (req, res) => {
+  const userId = req.user._id;
   const { name, avatar } = req.body;
-  return User.create({ name, avatar })
-    .then((user) => res.status(201).send(user))
+  return User.findByIdAndUpdate(userId, { name, avatar }, { new: true })
+    .then((user) => {
+      if (!user) {
+        return res.status(NOT_FOUND).send({ message: "User not found" });
+      }
+      return res.status(200).send(user);
+    })
     .catch((err) => {
       console.error(err);
       if (err.name === "ValidationError") {
@@ -30,12 +78,12 @@ const createUser = (req, res) => {
       }
       return res
         .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "Error creating user" });
+        .send({ message: "Error updating user" });
     });
 };
 
-const getUser = (req, res) => {
-  const { userId } = req.params;
+const getCurrentUser = (req, res) => {
+  const userId = req.user._id;
   User.findById(userId)
     .orFail(() => {
       const error = new Error("User not found");
@@ -57,4 +105,10 @@ const getUser = (req, res) => {
     });
 };
 
-module.exports = { getUsers, createUser, getUser };
+module.exports = {
+  getUsers,
+  createUser,
+  getCurrentUser,
+  login,
+  updateCurrentUser,
+};
