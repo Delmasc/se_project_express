@@ -20,6 +20,7 @@
   "homepage": "https://github.com/Delmasc/se_project_express#readme",
   "dependencies": {
     "bcryptjs": "^3.0.3",
+    "celebrate": "^15.0.3",
     "cors": "^2.8.6",
     "express": "^4.22.1",
     "express-winston": "^4.2.0",
