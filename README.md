@@ -10,7 +10,8 @@ The back-end project is focused on creating a server for the WTWR application. Y
 
 `npm run dev` — to launch the server with the hot reload feature
 
-<!-- wathcing Video print 15 part 2c -->
+<!-- sudo nano /etc/nginx/sites-available/default -->
+<!-- video sprint 15 part 7 5:36 -->
 
 ### Testing
 
