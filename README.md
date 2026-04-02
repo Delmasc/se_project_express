@@ -12,9 +12,11 @@ The back-end project is focused on creating a server for the WTWR application. Y
 
 <!-- sudo nano /etc/nginx/sites-available/default -->
 
-Subdomains - wtwr0.jumpingcrab.com , www.wtwr0.jumpingcrab.com	, api.wtwr0.jumpingcrab.com
+Subdomains - wtwr0.jumpingcrab.com , www.wtwr0.jumpingcrab.com , api.wtwr0.jumpingcrab.com
 
 Subdomains backend - api.wtwr0.jumpingcrab.com
+
+video link of cloud - https://www.loom.com/share/0ba1fa2ff2ee4318bb51fd9303569f6b
 
 ### Testing
 
