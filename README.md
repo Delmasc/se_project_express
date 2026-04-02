@@ -11,7 +11,10 @@ The back-end project is focused on creating a server for the WTWR application. Y
 `npm run dev` — to launch the server with the hot reload feature
 
 <!-- sudo nano /etc/nginx/sites-available/default -->
-<!-- video sprint 15 part 7 5:36 -->
+
+Subdomains - wtwr0.jumpingcrab.com , www.wtwr0.jumpingcrab.com	, api.wtwr0.jumpingcrab.com
+
+Subdomains backend - api.wtwr0.jumpingcrab.com
 
 ### Testing
 
