@@ -9,6 +9,13 @@ const {
   validateAuthentication,
 } = require("../middlewares/validations");
 
+// Crash test route to simulate server crash for testing purposes
+router.get("/crash-test", () => {
+  setTimeout(() => {
+    throw new Error("Server will crash now");
+  }, 0);
+});
+
 router.post("/signin", validateAuthentication, login);
 router.post("/signup", validateUserBody, createUser);
 

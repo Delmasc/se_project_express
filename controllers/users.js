@@ -44,7 +44,11 @@ const createUser = (req, res, next) => {
 const updateCurrentUser = (req, res, next) => {
   const userId = req.user._id;
   const { name, avatar } = req.body;
-  return User.findByIdAndUpdate(userId, { name, avatar }, { new: true })
+  return User.findByIdAndUpdate(
+    userId,
+    { name, avatar },
+    { new: true, runValidators: true }
+  )
     .then((user) => {
       if (!user) {
         return next(new NotFoundError("User Not Found "));
