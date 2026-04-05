@@ -1,9 +1,9 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const mainRouter = require("./routes/index");
 const cors = require("cors");
-const { requestLogger, errorLogger } = require("./middlewares/logger");
 const { errors } = require("celebrate");
+const mainRouter = require("./routes/index");
+const { requestLogger, errorLogger } = require("./middlewares/logger");
 const errorHandler = require("./middlewares/error-handler");
 require("dotenv").config();
 
@@ -12,21 +12,17 @@ const app = express();
 
 mongoose
   .connect("mongodb://127.0.0.1:27017/wtwr_db")
-  .then(() => {
-    console.log("Connected to DB");
-  })
-  .catch(console.error);
+  .then(() => {})
+  .catch();
 app.use(cors());
 app.use(express.json());
 
 app.use(requestLogger);
+app.use("/", mainRouter);
 
 app.use(errorLogger); // enabling the error logger
 
 app.use(errors()); // celebrate error handler
 app.use(errorHandler);
-app.use("/", mainRouter);
 
-app.listen(PORT, () => {
-  console.log(`listening on port ${PORT}`);
-});
+app.listen(PORT, () => {});

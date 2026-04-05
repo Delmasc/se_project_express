@@ -1,29 +1,13 @@
-const User = require("../models/user");
+const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require("../utils/config");
-const bcrypt = require("bcryptjs");
+const User = require("../models/user");
 
-const {
-  INTERNAL_SERVER_ERROR,
-  BAD_REQUEST,
-  NOT_FOUND,
-  CONFLICT,
-} = require("../utils/errors");
+const BadRequestError = require("../errors/BadRequestError");
+const ConflictError = require("../errors/ConflictError");
+const NotFoundError = require("../errors/NotFoundError");
 
-// Get /users
-
-const getUsers = (req, res) => {
-  return User.find({})
-    .then((users) => res.send(users))
-    .catch((err) => {
-      console.error(err);
-      return res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "An error occurred while retrieving users" });
-    });
-};
-
-const login = (req, res) => {
+const login = (req, res, next) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
     .then((user) => {
@@ -32,82 +16,67 @@ const login = (req, res) => {
       });
       res.send({ token });
     })
-    .catch((err) => {
-      console.error(err);
-      res.status(BAD_REQUEST).send({ message: "Invalid email or password" });
-    });
+    .catch(next);
 };
 
-const createUser = (req, res) => {
+const createUser = (req, res, next) => {
   const { name, avatar, password, email } = req.body;
-  bcrypt.hash(password, 13).then((hashedPassword) => {
-    return User.create({ name, avatar, password: hashedPassword, email })
+
+  bcrypt.hash(password, 13).then((hashedPassword) =>
+    User.create({ name, avatar, password: hashedPassword, email })
       .then((user) => {
         const userObj = user.toObject();
         delete userObj.password;
         return res.status(201).send(userObj);
       })
       .catch((err) => {
-        console.error(err);
         if (err.name === "ValidationError") {
-          return res.status(BAD_REQUEST).send({ message: "Invalid user data" });
+          return next(new BadRequestError("invalid data"));
         }
         if (err.code === 11000) {
-          return res.status(CONFLICT).send({ message: "Email already exists" });
+          return next(new ConflictError("Email Already exists"));
         }
-        return res
-          .status(INTERNAL_SERVER_ERROR)
-          .send({ message: "Error creating user" });
-      });
-  });
+        return next(err);
+      })
+  );
 };
 
-const updateCurrentUser = (req, res) => {
+const updateCurrentUser = (req, res, next) => {
   const userId = req.user._id;
   const { name, avatar } = req.body;
   return User.findByIdAndUpdate(userId, { name, avatar }, { new: true })
     .then((user) => {
       if (!user) {
-        return res.status(NOT_FOUND).send({ message: "User not found" });
+        return next(new NotFoundError("User Not Found "));
       }
       return res.status(200).send(user);
     })
     .catch((err) => {
       console.error(err);
       if (err.name === "ValidationError") {
-        return res.status(BAD_REQUEST).send({ message: "Invalid user data" });
+        return next(new BadRequestError("invalid data"));
       }
-      return res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "Error updating user" });
+      return next(err);
     });
 };
 
-const getCurrentUser = (req, res) => {
+const getCurrentUser = (req, res, next) => {
   const userId = req.user._id;
   User.findById(userId)
-    .orFail(() => {
-      const error = new Error("User not found");
-      error.statusCode = NOT_FOUND;
-      throw error;
-    })
+    .orFail()
     .then((user) => res.status(200).send(user))
     .catch((err) => {
-      console.error(err);
       if (err.name === "CastError") {
-        res.status(BAD_REQUEST).send({ message: "Invalid user ID" });
-      } else if (err.statusCode === NOT_FOUND) {
-        res.status(NOT_FOUND).send({ message: err.message });
-      } else {
-        res
-          .status(INTERNAL_SERVER_ERROR)
-          .send({ message: "An error has occurred on the server" });
+        return next(new BadRequestError("invalid data"));
       }
+      if (err.name === "DocumentNotFoundError") {
+        return next(new NotFoundError("User Not Found"));
+      }
+      return next(err);
     });
 };
 
 module.exports = {
-  getUsers,
   createUser,
   getCurrentUser,
   login,

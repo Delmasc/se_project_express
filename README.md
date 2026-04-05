@@ -25,3 +25,4 @@ Before committing your code, make sure you edit the file `sprint.txt` in the roo
 Video link - https://www.loom.com/share/83f328a078c54880b5abbf7617b0d860
 
 Front End link - https://github.com/Delmasc/se_project_react
+<!-- do joi.for code -->
